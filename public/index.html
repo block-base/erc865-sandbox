@@ -75,9 +75,7 @@
                         <label class="luxbar-hamburger luxbar-hamburger-doublespin" id="luxbar-hamburger" for="luxbar-checkbox">
                             <span></span> </label>
                     </li>
-                    <li class="luxbar-item">
-                        <a @click="transPage('register')">Register</a>
-                    </li>
+
                     <li class="luxbar-item">
                         <a @click="transPage('publish')">Publish</a>
                     </li>
@@ -86,9 +84,6 @@
                     </li>
                     <li class="luxbar-item">
                         <a @click="transPage('sell')">Sell</a>
-                    </li>
-                    <li class="luxbar-item">
-                        <a @click="transPage('exchange')">Exchange</a>
                     </li>
                 </ul>
             </div>
@@ -105,29 +100,7 @@
             </div>
         </div>
 
-        <div id="register" v-if="currentPage == 'register'">
-            <div class="ui container middle text">
-                <div class="ui segment">
 
-                    <div id="deploy" style="display:none">
-                        <form class="ui form" name="form">
-                            <h4 class="ui header">Deploy Your Identity</h4>
-                            <div id="confirm" class="fluid ui teal button" @click="deploy()">Deploy</div>
-                        </form>
-                    </div>
-
-                    <div id="verify" style="display:none">
-                        <form class="ui form" name="form">
-                            <h4 class="ui header">Your Information</h4>
-                            <div class="field">
-                                <input type="text" name="name" id="name" placeholder="Name">
-                            </div>
-                            <div id="confirm" class="fluid ui teal button" @click="register()">Register</div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div id="publish" v-if="currentPage == 'publish'">
             <div class="ui container middle text">
@@ -138,12 +111,6 @@
                             <label for="publish" class="file">
                                 <input type="file" id="file" @change="readFile(this)" />
                             </label>
-                        </div>
-                        <div class="field">
-                            <input type="text" name="title" id="title" placeholder="Title">
-                        </div>
-                        <div class="field">
-                            <textarea name="descripttion" id="description" placeholder="Description"></textarea>
                         </div>
                         <div class="field">
                             <div class="ui right labeled input field">
@@ -340,40 +307,13 @@
             })
         }
 
-        async function _register(name) {
 
-            registry.users(userAccount, function (err, result) {
-                axios.get('https://erc825.glitch.me/register?identity=' + result + '&name=' + name).then(function (response) {
-                    sig = response.data.sig
-                    data = response.data.data
-
-                    var identityInstance = identity.at(result);
-                    identityInstance.addClaim(
-                        1,
-                        0,
-                        claimHolder,
-                        sig,
-                        data,
-                        ""
-                        ,
-                        function (err, result) {
-                            if (!err) {
-                                console.log(result);
-                            }
-                        });
-
-                })
-            });
-        }
-
-        async function _publish(title, desc, content, price) {
-
-            contract.mint(title, desc, content, price, function (err, result) {
+        async function _publish(content, price) {
+            contract.mint(content, price, sig, function (err, result) {
                 if (!err) {
                     console.log(result);
                 }
             })
-
         }
 
         async function _purchase(id, price) {
@@ -393,18 +333,6 @@
 
         }
 
-        function displayIdentity() {
-            registry.users(userAccount, function (err, result) {
-                if (result != 0x0) {
-                    $('#deploy').hide();
-                    $('#verify').show();
-                } else {
-                    $('#deploy').show();
-                    $('#verify').hide();
-                }
-            });
-        }
-
         var app = new Vue({
             el: '#app',
             data() {
@@ -420,15 +348,6 @@
                     this.currentPage = page;
                     this.index = index;
 
-                    if (page == "register") {
-                        displayIdentity()
-                    }
-
-                },
-
-                register: function register() {
-                    var name = $("#name").val();
-                    _register(name);
                 },
 
                 readFile: async function readFile(input) {
@@ -440,11 +359,8 @@
                 publish: async function publish() {
 
                     var price = $("#price_publish").val();
-                    var title = $("#title").val();
-                    var desc = $("#description").val();
-
                     price = web3js.toWei(price);
-                    _publish(title, desc, hash, price)
+                    _publish(hash, price)
 
                 },
 
@@ -466,7 +382,7 @@
             },
 
             mounted() {
-                axios.get('https://erc825.glitch.me/market').then(response => (
+                axios.get('https://erc865.glitch.me/market').then(response => (
                     this.purchases = response.data
                 ))
 
@@ -474,7 +390,7 @@
                     if (accounts[0] !== userAccount) {
                         userAccount = accounts[0];
 
-                        axios.get('https://erc825.glitch.me/ownedTokens?address=' + userAccount).then(response => (
+                        axios.get('https://erc865.glitch.me/ownedTokens?address=' + userAccount).then(response => (
                             this.sells = response.data
                         ))
 
