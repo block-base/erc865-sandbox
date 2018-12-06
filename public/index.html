@@ -294,26 +294,10 @@
             })
         }
 
-        async function _deploy() {
-            identity.new(userRegistry, { data: identityBytesCode }, function (err, myContract) {
-                if (!err) {
-                    if (!myContract.address) {
-                        console.log(myContract.transactionHash)
-                    } else {
-                        //displayIdentity();
-
-                    }
-                }
-            })
-        }
-
-
         async function _publish(content, price) {
-            contract.mint(content, price, sig, function (err, result) {
-                if (!err) {
-                    console.log(result);
-                }
-            })
+            axios.get('https://erc865.glitch.me/broadcast?content=' + content + '&price=' + price + '&sig=' + sig).then(response => (
+                    console.log(response)
+            ))
         }
 
         async function _purchase(id, price) {
@@ -368,9 +352,6 @@
                     _purchase(id, price);
                 },
 
-                deploy: function deploy() {
-                    _deploy();
-                },
 
                 sell: function sell(id) {
                     var price = $("#price_sell").val();
